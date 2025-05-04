@@ -5,43 +5,28 @@ spring:
   application:
     name: achievepoint
   datasource:
-    url: jdbc:postgresql://localhost:35432/postgres
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://achievepoint_db:5432/achievepoint_db
+    username: achievepoint_user
+    password: achievepoint_password
     driverClassName: org.postgresql.Driver
   flyway:
     enabled: true
     validate-on-migrate: true
 
+management:
+  endpoint:
+    health:
+      access: unrestricted
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+  server:
+    port: 8083
+
 grpc:
   client:
     authpoint:
-      address: localhost:9098
+      address: static://tochkaszapyatoi.ru:9098
       negotiation-type: plaintext
-
-kafka:
-  consumers-enabled: true
-  topics:
-    stats:
-      destination: achievepoint.stats
-      groupId: achievepoint.stats.1
-  clusters:
-    default:
-      bootstrap-servers:
-        - localhost:29092
-      properties:
-        acks: -1
-        delivery.timeout.ms: 90000
-        batch.size: 10240
-        linger.ms: 100
-        max.in.flight.requests.per.connection: 5
-        enable.idempotence: true
-      consumer:
-        client-id: tanpii.achievepoint
-        group-id: tanpii.achievepoint
-        enable-auto-commit: false
-      listener:
-        concurrency: 1
-        ack-mode: record
-      security:
-        protocol: PLAINTEXT

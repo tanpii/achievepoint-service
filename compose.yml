@@ -1,14 +1,39 @@
+version: "3.9"
+
 services:
-  postgresql:
+  achievepoint_db:
     image: 'postgres:16'
     environment:
-      - 'POSTGRES_DB=postgres'
-      - 'POSTGRES_PASSWORD=postgres'
-      - 'POSTGRES_USER=postgres'
+      - 'POSTGRES_DB=achievepoint_db'
+      - 'POSTGRES_PASSWORD=achievepoint_password'
+      - 'POSTGRES_USER=achievepoint_user'
     ports:
       - "35432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U achievepoint_user -d achievepoint_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     volumes:
       - postgresql:/var/lib/postgresql/
+    networks:
+      - backend
+
+  app:
+    build: .
+    ports:
+      - "8083:8083"
+    depends_on:
+      achievepoint_db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://tochkaszapyatoi.ru:8083/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    networks:
+      - backend
 
 volumes:
   postgresql: { }
